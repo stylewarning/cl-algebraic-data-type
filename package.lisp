@@ -3,5 +3,9 @@
 
 (defpackage #:cl-algebraic-data-type
   (:use #:cl)
-  (:export #:defadt))
+  (:export
+   #:base-adt                           ; type
+   #:+adt-top+                          ; constant
+   #:defadt                             ; macro
+   ))
 
