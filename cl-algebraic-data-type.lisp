@@ -25,7 +25,17 @@
     (kar nil :type t)
     (kdr knil :type liste)))
 
-(defmacro defadt (name &rest components)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  ;; All ADTs inherit from the top of the ADT lattice, defined as
+  ;; BASE-ADT.
+  (defstruct (base-adt (:constructor %make-base-adt)
+                       (:copier nil)))
+
+  ;; The only value of type BASE-ADT and is not less than BASE-ADT is
+  ;; +ADT-TOP+.
+  (defconstant +adt-top+ (%make-base-adt)))
+
+(defmacro defadt (name &body components)
   (check-type name symbol)
   (labels ((ctor (symb)
              (intern (concatenate 'string
@@ -33,7 +43,8 @@
                                   (symbol-name symb)))))
     `(progn
        ;; base structure; do not provide a constructor!
-       (defstruct (,name (:constructor nil)))
+       (defstruct (,name (:include base-adt)
+                         (:constructor nil)))
        
        ;; component structures
        ,@(loop :for component :in components
