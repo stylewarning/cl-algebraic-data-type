@@ -1,1 +1,1 @@
-This is the stub README.txt for the "cl-algebraic-data-type" project.
+A simple library for defining algebraic data types.
