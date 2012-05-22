@@ -35,6 +35,8 @@
   ;; +ADT-TOP+.
   (defconstant +adt-top+ (%make-base-adt)))
 
+;;; TODO: parametric ADTs?
+
 (defmacro defadt (name &body components)
   (check-type name symbol)
   (labels ((ctor (symb)
