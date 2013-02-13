@@ -33,7 +33,7 @@ deep).
     (unless (some #'wild? types)
       (let ((diff (set-difference ctors types)))
         (when diff
-          (warn "Non-exhaustive match. Missing cases: ~S" diff))))
+          (warn "Non-exhaustive match. Missing cases:~{ ~S~}" diff))))
     
     ;; Generate the matching code.
     `(let ((,once ,obj))
