@@ -1,5 +1,5 @@
                         CL-ALGEBRAIC-DATA-TYPE
-                        ----------------------
+                        ======================
                         
                              Robert Smith
 
@@ -17,14 +17,24 @@ which will define a new type MAYBE, with a unary constructor JUST, and
 a nullary constructor (a simple symbol) NOTHING. The T represents the
 data type of that field.
 
+> (just 5)
+#<JUST 5>
+> nothing
+#<NOTHING>
+
 We can define our own version of a list via
 
-(defdata lst
-  (kons t lst)
+(defdata liszt
+  (kons t liszt)
   knil)
 
 which defines the binary constructor KONS and the nullary constructor
 KNIL.
+
+> (kons 1 (kons 2 knil))
+#<KONS 1 #<KONS 2 #<KNIL>>>
+
+At the end we will define KAR and KDR.
 
 For efficiency, we might specify the types more exactly. For a POINT
 type that supports rectangular and polar coordinates, which is also
@@ -79,3 +89,26 @@ SET-DATA.
 will print "point is (2.0, 1.0)".
 
 See examples.txt for examples.
+
+
+Frequently Asked Questions
+--------------------------
+
+Q. How do we define KAR and KDR for LISZT?
+
+A. Easy.
+
+(defun kar (l)
+  (match liszt l
+    ((kons a _) a)
+    (knil knil)))
+
+(defun kdr (l)
+  (match liszt l
+    ((kons _ b) b)
+    (knil knil)))
+
+
+Q. Can we do parametric ADTs like I can in Haskell?
+
+A. Not unless you want things to be inefficient.
