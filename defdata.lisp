@@ -49,50 +49,72 @@ functions."
   (let ((adt-name (ensure-car adt-name))
         (mutable? (and (listp adt-name)
                        (member :mutable adt-name)
-                       t)))
+                       t))
+        (object (gensym "OBJECT-"))
+        (stream (gensym "STREAM-"))
+        (depth (gensym "DEPTH-")))
     ;; Add constructors to the database.
     (set-constructors adt-name
                       (mapcar #'ensure-car constructors))
     
-    ;; Define everything.
-    `(progn
-       ;; Define the data type.
-       (defstruct (,adt-name (:constructor nil)))
-       
-       ;; Define each of the field constructors.
-       ,@(loop :for ctor :in (unwrap-singletons constructors)
-               :collect
-               (etypecase ctor
-                 ;; Nullary constructor
-                 (symbol `(progn
-                            (defstruct (,ctor
-                                        (:include ,adt-name)
-                                        (:constructor ,(internal ctor))))
-                            #+sbcl (declaim (sb-ext:freeze-type ,ctor))
-                            (define-constant ,ctor (,(internal ctor)))
-                            (fmakunbound ',(internal ctor))))
-                 
-                 ;; N-ary constructors
-                 (list (let* ((ctor-name (first ctor))
-                              (field-types (rest ctor))
-                              (field-names (gen-names (length field-types))))
-                         `(progn
-                            (defstruct (,ctor-name
-                                        (:include ,adt-name)
-                                        (:constructor ,ctor-name (,@field-names))
-                                        (:conc-name ,ctor-name))
-                              ,@(mapcar #'(lambda (name type)
-                                            `(,name (error "Unspecified field.")
-                                                    :type ,type
-                                                    ,@(if mutable?
-                                                          nil
-                                                          '(:read-only t))))
-                                 field-names
-                                 field-types))
-                            #+sbcl (declaim (sb-ext:freeze-type ,ctor-name)))))))
-       #+sbcl (declaim (sb-ext:freeze-type ,adt-name))
-       ;; Return the type name
-       ',adt-name)))
+    (flet ((make-printer (name &optional (nfields 0))
+             "Make a printer function for the structs."
+             `(lambda (,object ,stream ,depth)
+                (declare (ignore ,depth))
+                (print-unreadable-object (,object ,stream)
+                  ;; we don't use the :TYPE T option because it adds
+                  ;; an annoying space when we might not need it
+                  (princ ',name ,stream)
+                  ,@(when (plusp nfields)
+                      (loop :for i :below nfields
+                            :append (list
+                                     `(princ " " ,stream)
+                                     `(write (,(field name i) ,object)
+                                             :stream ,stream))))))))
+      ;; Define everything.
+      `(progn
+         ;; Define the data type.
+         (defstruct (,adt-name (:constructor nil)))
+         
+         ;; Define each of the field constructors.
+         ,@(loop :for ctor :in (unwrap-singletons constructors)
+                 :collect
+                 (etypecase ctor
+                   ;; Nullary constructor
+                   (symbol `(progn
+                              (defstruct
+                                  (,ctor
+                                   (:include ,adt-name)
+                                   (:constructor ,(internal ctor))
+                                   (:print-function ,(make-printer ctor))))
+                              #+sbcl (declaim (sb-ext:freeze-type ,ctor))
+                              (define-constant ,ctor (,(internal ctor)))
+                              (fmakunbound ',(internal ctor))))
+                   
+                   ;; N-ary constructors
+                   (list (let* ((ctor-name (first ctor))
+                                (field-types (rest ctor))
+                                (field-names (gen-names (length field-types))))
+                           `(progn
+                              (defstruct (,ctor-name
+                                          (:include ,adt-name)
+                                          (:constructor ,ctor-name (,@field-names))
+                                          (:conc-name ,ctor-name)
+                                          (:print-function 
+                                           ,(make-printer ctor-name
+                                                          (length field-names))))
+                                ,@(mapcar #'(lambda (name type)
+                                              `(,name (error "Unspecified field.")
+                                                      :type ,type
+                                                      ,@(if mutable?
+                                                            nil
+                                                            '(:read-only t))))
+                                   field-names
+                                   field-types))
+                              #+sbcl (declaim (sb-ext:freeze-type ,ctor-name)))))))
+         #+sbcl (declaim (sb-ext:freeze-type ,adt-name))
+         ;; Return the type name
+         ',adt-name))))
 
 (defmacro set-data (obj (name &rest new-values))
   "Mutate the fields of the ADT value OBJ whose constructor is NAME
@@ -122,5 +144,3 @@ means the value will not be bound."
        (declare (ignorable ,once))
        (let (,@bindings)
          ,@body))))
-
-
