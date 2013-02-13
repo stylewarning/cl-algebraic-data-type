@@ -8,6 +8,6 @@
   :license "BSD 3-clause"
   :components ((:file "package")
                (:file "utilities")
-               (:file "cl-algebraic-data-type")
+               (:file "defdata")
                (:file "match")))
 

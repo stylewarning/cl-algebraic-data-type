@@ -23,6 +23,7 @@
                           (defstruct (,ctor
                                       (:include ,adt-name)
                                       (:constructor ,(internal ctor))))
+                          #+sbcl (declaim (sb-ext:freeze-type ,ctor))
                           (define-constant ,ctor (,(internal ctor)))
                           (fmakunbound ',(internal ctor))))
                
@@ -30,16 +31,18 @@
                (list (let* ((ctor-name (first ctor))
                             (field-types (rest ctor))
                             (field-names (gen-names (length field-types))))
-                       `(defstruct (,ctor-name
-                                    (:include ,adt-name)
-                                    (:constructor ,ctor-name (,@field-names))
-                                    (:conc-name ,ctor-name))
-                          ,@(mapcar #'(lambda (name type)
-                                        `(,name (error "Unspecified field.")
-                                                :type ,type))
-                             field-names
-                             field-types))))))
-     
+                       `(progn
+                          (defstruct (,ctor-name
+                                      (:include ,adt-name)
+                                      (:constructor ,ctor-name (,@field-names))
+                                      (:conc-name ,ctor-name))
+                            ,@(mapcar #'(lambda (name type)
+                                          `(,name (error "Unspecified field.")
+                                                  :type ,type))
+                               field-names
+                               field-types))
+                          #+sbcl (declaim (sb-ext:freeze-type ,ctor-name)))))))
+     #+sbcl (declaim (sb-ext:freeze-type ,adt-name))
      ;; Return the type name
      ',adt-name))
 

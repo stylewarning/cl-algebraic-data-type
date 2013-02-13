@@ -12,12 +12,6 @@
   (setf (gethash adt *constructors*)
         constructors))
 
-(defmacro define-constant (name value &optional doc)
-  `(defconstant ,name (if (boundp ',name)
-                          (symbol-value ',name)
-                          ,value)
-     ,@(when doc (list doc))))
-
 (defun wild? (s)
   (and (symbolp s)
        (string= "_" (symbol-name s))))
@@ -50,3 +44,9 @@
 (defun field (name n)
   (intern (format nil "~A%~D" name n)
           (symbol-package name)))
+
+(defmacro define-constant (name value)
+  (let ((varname (intern (format nil "*%~A*" name))))
+    `(progn
+       (defvar ,varname ,value)
+       (define-symbol-macro ,name (load-time-value ,varname t)))))
