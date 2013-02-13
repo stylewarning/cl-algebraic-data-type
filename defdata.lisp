@@ -94,8 +94,11 @@ functions."
        ;; Return the type name
        ',adt-name)))
 
-;; Setter
 (defmacro set-data (obj (name &rest new-values))
+  "Mutate the fields of the ADT value OBJ whose constructor is NAME
+and whose updated values are NEW-VALUES based on order. If the symbol
+'_' is used as a value, that field is not updated. Trailing '_' may be
+omitted."
   (let ((once (gensym "ONCE")))
     `(let ((,once ,obj))
        (psetf
@@ -105,8 +108,10 @@ functions."
                   :append (list `(,(field name i) ,once)
                                 x))))))
 
-;; Destructuring
 (defmacro with-data ((name &rest vars) obj &body body)
+  "Destructure the ADT value OBJ, whose constructor is NAME. VARS must
+be symbol which will be bound, or they must be the symbol '_', which
+means the value will not be bound."
   (let* ((once (gensym "ONCE-"))
          (bindings (loop :for i :from 0
                          :for v :in vars
