@@ -3,6 +3,7 @@
 
 (defpackage #:cl-algebraic-data-type
   (:use #:cl)
+  (:nicknames #:adt)
   (:export
    #:defdata
    #:set-data
