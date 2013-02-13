@@ -4,6 +4,20 @@
 (in-package #:cl-algebraic-data-type)
 
 (defmacro match (adt obj &body clauses)
+  "Perform pattern matching on OBJ with (adt-type) ADT.
+
+Each clause must have the following syntax:
+
+<var> := <symbol> | '_'
+<lhs> := '_'
+       | (<symbol> <var>*)
+<clause> := (<lhs> <lisp code>)
+
+The symbol '_' denotes a wildcard, as well as a fallthough.
+
+Note that pattern matching is only shallow (patterns are one-level
+deep).
+"
   (assert (symbolp adt)
           (adt)
           "MATCH requires a symbol for the first argument. Given ~S."
