@@ -1,11 +1,13 @@
 ;;;; cl-algebraic-data-type.asd
-;;;; Copyright (c) 2012 Robert Smith
+;;;; Copyright (c) 2012-2013 Robert Smith
 
 (asdf:defsystem #:cl-algebraic-data-type
   :serial t
-  :description "A simple library for algebraic data types."
+  :description "A library for algebraic data types."
   :author "Robert Smith <quad@symbo1ics.com>"
-  ;;  :license "Specify license here"
+  :license "BSD 3-clause"
   :components ((:file "package")
-               (:file "cl-algebraic-data-type")))
+               (:file "utilities")
+               (:file "cl-algebraic-data-type")
+               (:file "match")))
 
