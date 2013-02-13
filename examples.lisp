@@ -1,8 +1,5 @@
 ;;;; defdata-examples.lisp
-;;;;
-;;;; Requires defdata.lisp.
-;;;;
-;;;; This errors with COMPILE-FILE on SBCL.
+
 
 (in-package #:cl-algebraic-data-type)
 
