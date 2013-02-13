@@ -26,7 +26,7 @@
 
 ;;; Point
 
-(defdata point
+(defdata (point :mutable)
   (rect float float))
 
 (defvar *origin* (rect 0.0 0.0))
