@@ -112,3 +112,8 @@ A. Easy.
 Q. Can we do parametric ADTs like I can in Haskell?
 
 A. Not unless you want things to be inefficient.
+
+
+Q. Why doesn't deeper pattern matching work?
+
+A. It's not implemented, and it would be hard to implement.
