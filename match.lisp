@@ -3,6 +3,7 @@
 
 (in-package #:cl-algebraic-data-type)
 
+;; TODO: Optimize ETYPECASE to be a jump table.
 (defmacro match (adt obj &body clauses)
   "Perform pattern matching on OBJ with (adt-type) ADT.
 
@@ -27,7 +28,7 @@ deep).
         (types (mapcar (lambda (clause)
                          (ensure-car (car clause)))
                        clauses))
-        (once (gensym "ONCE-")))
+        (once (gensym "OBJ-")))
     
     ;; Check for match exhaustiveness.
     (unless (some #'wild? types)
@@ -37,6 +38,7 @@ deep).
     
     ;; Generate the matching code.
     `(let ((,once ,obj))
+       (check-type ,once ,adt)
        (etypecase ,once
          ,@(loop :for (bindings . body) :in clauses
                  :collect (let ((type (ensure-car bindings)))
