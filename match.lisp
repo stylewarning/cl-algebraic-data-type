@@ -37,7 +37,7 @@ deep).
     
     ;; Generate the matching code.
     `(let ((,once ,obj))
-       (etypecase ,obj
+       (etypecase ,once
          ,@(loop :for (bindings . body) :in clauses
                  :collect (let ((type (ensure-car bindings)))
                             (if (wild? type)
