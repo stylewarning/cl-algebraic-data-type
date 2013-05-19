@@ -61,16 +61,17 @@ functions."
              "Make a printer function for the structs."
              `(lambda (,object ,stream ,depth)
                 (declare (ignore ,depth))
-                (print-unreadable-object (,object ,stream)
-                  ;; we don't use the :TYPE T option because it adds
-                  ;; an annoying space when we might not need it
-                  (princ ',name ,stream)
-                  ,@(when (plusp nfields)
-                      (loop :for i :below nfields
-                            :append (list
-                                     `(princ " " ,stream)
-                                     `(write (,(field name i) ,object)
-                                             :stream ,stream))))))))
+                ,(when (plusp nfields)
+                   `(princ "(" ,stream))
+                (princ ',name ,stream)
+                ,@(when (plusp nfields)
+                    (loop :for i :below nfields
+                          :append (list
+                                   `(princ " " ,stream)
+                                   `(write (,(field name i) ,object)
+                                           :stream ,stream))))
+                ,(when (plusp nfields)
+                   `(princ ")" ,stream)))))
       ;; Define everything.
       `(progn
          ;; Define the data type.
