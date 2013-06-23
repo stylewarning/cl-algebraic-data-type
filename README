@@ -18,9 +18,9 @@ a nullary constructor (a simple symbol) NOTHING. The T represents the
 data type of that field.
 
 > (just 5)
-#<JUST 5>
+(JUST 5)
 > nothing
-#<NOTHING>
+NOTHING
 
 We can define our own version of a list via
 
@@ -32,7 +32,7 @@ which defines the binary constructor KONS and the nullary constructor
 KNIL.
 
 > (kons 1 (kons 2 knil))
-#<KONS 1 #<KONS 2 #<KNIL>>>
+(KONS 1 (KONS 2 KNIL))
 
 At the end we will define KAR and KDR.
 
