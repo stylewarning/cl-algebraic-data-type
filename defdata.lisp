@@ -60,7 +60,8 @@ functions."
     (flet ((make-printer (name &optional (nfields 0))
              "Make a printer function for the structs."
              `(lambda (,object ,stream ,depth)
-                (declare (ignore ,depth))
+                (declare (ignore ,depth)
+                         (ignorable ,object))
                 ,(when (plusp nfields)
                    `(princ "(" ,stream))
                 (princ ',name ,stream)
