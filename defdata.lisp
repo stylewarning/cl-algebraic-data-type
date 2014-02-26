@@ -64,13 +64,13 @@ functions."
                          (ignorable ,object))
                 ,(when (plusp nfields)
                    `(princ "(" ,stream))
-                (princ ',name ,stream)
+                (prin1 ',name ,stream)
                 ,@(when (plusp nfields)
                     (loop :for i :below nfields
                           :append (list
                                    `(princ " " ,stream)
-                                   `(write (,(field name i) ,object)
-                                           :stream ,stream))))
+                                   `(prin1 (,(field name i) ,object)
+                                           ,stream))))
                 ,(when (plusp nfields)
                    `(princ ")" ,stream)))))
       ;; Define everything.
