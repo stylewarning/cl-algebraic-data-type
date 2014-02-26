@@ -63,16 +63,16 @@ functions."
                 (declare (ignore ,depth)
                          (ignorable ,object))
                 ,(when (plusp nfields)
-                   `(princ "(" ,stream))
+                   `(write-char #\( ,stream))
                 (prin1 ',name ,stream)
                 ,@(when (plusp nfields)
                     (loop :for i :below nfields
                           :append (list
-                                   `(princ " " ,stream)
+                                   `(write-char #\Space ,stream)
                                    `(prin1 (,(field name i) ,object)
                                            ,stream))))
                 ,(when (plusp nfields)
-                   `(princ ")" ,stream)))))
+                   `(write-char #\) ,stream)))))
       ;; Define everything.
       `(progn
          ;; Define the data type.
