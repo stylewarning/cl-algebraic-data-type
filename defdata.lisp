@@ -8,10 +8,10 @@
 
 ADT-NAME := <symbol>
           | (<symbol>)
-          | (<symbol> :MUTABLE)
+          | (<symbol> :MUTABLE {T, NIL})
 
 There is no difference between specifying it as a symbol or as a
-singleton list. Specifying :MUTABLE will make DEFDATA mutable,
+singleton list. Specifying :MUTABLE as T will make DEFDATA mutable,
 allowing the use of SET-DATA.
 
 Constructors is a list of clauses with the following grammar:
@@ -35,8 +35,8 @@ functions."
      (or
       ;; whose length is at 1, or
       (= 1 (length adt-name))
-      ;; whose length is 2 and whose second element is :MUTABLE.
-      (and (= 2 (length adt-name))
+      ;; whose length is 3 and whose second element is :MUTABLE.
+      (and (= 3 (length adt-name))
            (eql :mutable (second adt-name)))
       ;; whose first element is a symbol (the name of the adt)
       (symbolp (first adt-name)))))
@@ -48,7 +48,7 @@ functions."
   
   (let ((adt-name (ensure-car adt-name))
         (mutable? (and (listp adt-name)
-                       (member :mutable adt-name)
+                       (getf (cdr adt-name) :mutable)
                        t))
         (object (gensym "OBJECT-"))
         (stream (gensym "STREAM-"))

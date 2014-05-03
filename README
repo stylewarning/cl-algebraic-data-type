@@ -40,7 +40,7 @@ For efficiency, we might specify the types more exactly. For a POINT
 type that supports rectangular and polar coordinates, which is also
 mutable, we might have:
 
-(defdata (point :mutable)
+(defdata (point :mutable t)
   (rectangular float float)
   (polar float float))
 
