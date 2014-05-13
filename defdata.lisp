@@ -53,9 +53,13 @@ functions."
         (object (gensym "OBJECT-"))
         (stream (gensym "STREAM-"))
         (depth (gensym "DEPTH-")))
-    ;; Add constructors to the database.
-    (set-constructors adt-name
-                      (mapcar #'ensure-car constructors))
+    
+    ;; Add constructors and their arity to the database.
+    (flet ((constructor-and-arity (ctor)
+             (if (listp ctor)
+                 (list (car ctor) (length (rest ctor)))
+                 (list ctor 0))))
+      (set-constructors adt-name (mapcar #'constructor-and-arity constructors)))
     
     (flet ((make-printer (name &optional (nfields 0))
              "Make a printer function for the structs."

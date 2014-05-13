@@ -24,7 +24,7 @@ deep).
           "MATCH requires a symbol for the first argument. Given ~S."
           adt)
   
-  (let ((ctors (get-constructors adt))
+  (let ((ctors (mapcar #'car (get-constructors adt)))
         (types (mapcar (lambda (clause)
                          (ensure-car (car clause)))
                        clauses))

@@ -8,5 +8,6 @@
    #:defdata
    #:set-data
    #:with-data
-   #:match))
+   #:match
+   #:get-constructors))
 
