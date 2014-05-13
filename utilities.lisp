@@ -6,7 +6,20 @@
 (defvar *constructors* (make-hash-table))
 
 (defun get-constructors (adt)
-  (gethash adt *constructors*))
+  "Get the constructors and their arity for the adt ADT. Two values will be returned:
+
+    1. If the ADT exists, then a list of pairs
+
+           (CONSTRUCTOR-SYMBOL ARITY).
+
+       If the ARITY is zero, then the CONSTRUCTOR-SYMBOL is a value as opposed to a function.
+
+    2. T if the ADT exists, NIL otherwise. This mimics the behavior of GETHASH.
+"
+  (multiple-value-bind (ctors exists?) (gethash adt *constructors*)
+    (if exists?
+        (values (mapcar #'copy-list ctors) t)
+        (values nil nil))))
 
 (defun set-constructors (adt constructors)
   (setf (gethash adt *constructors*)
