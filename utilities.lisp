@@ -1,5 +1,5 @@
 ;;;; utilities.lisp
-;;;; Copyright (c) 2013 Robert Smith
+;;;; Copyright (c) 2013-2014 Robert Smith
 
 (in-package #:cl-algebraic-data-type)
 
