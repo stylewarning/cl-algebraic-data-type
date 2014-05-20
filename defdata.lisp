@@ -80,7 +80,8 @@ functions."
       ;; Define everything.
       `(progn
          ;; Define the data type.
-         (defstruct (,adt-name (:constructor nil)))
+         (defstruct (,adt-name (:constructor nil)
+                               (:include algebraic-data-type)))
          
          ;; Define each of the field constructors.
          ,@(loop :for ctor :in (unwrap-singletons constructors)
