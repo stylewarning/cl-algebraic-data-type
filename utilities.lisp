@@ -3,7 +3,20 @@
 
 (in-package #:cl-algebraic-data-type)
 
-(defvar *constructors* (make-hash-table))
+(defvar *constructors* (make-hash-table :test 'eq))
+
+(defstruct (algebraic-data-type (:constructor nil)
+                                (:copier      nil)
+                                (:predicate   nil))
+  "Abstract type for all algebraic data types, primarily used to identify such types."
+  ;; no slots
+  )
+
+(defun algebraic-data-type-p (type)
+  "Is TYPE a known algebraic data type?"
+  ;; XXX: Can we always rely on this? Sometimes the second value is
+  ;; NIL, for example in CCL, but it's not always NIL.
+  (values (subtypep type 'algebraic-data-type)))
 
 (defun get-constructors (adt)
   "Get the constructors and their arity for the adt ADT. Two values will be returned:
@@ -17,7 +30,8 @@
     2. T if the ADT exists, NIL otherwise. This mimics the behavior of GETHASH.
 "
   (multiple-value-bind (ctors exists?) (gethash adt *constructors*)
-    (if exists?
+    (if (and (algebraic-data-type-p adt)
+             exists?)
         (values (mapcar #'copy-list ctors) t)
         (values nil nil))))
 

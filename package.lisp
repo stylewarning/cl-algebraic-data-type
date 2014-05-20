@@ -9,5 +9,7 @@
    #:set-data
    #:with-data
    #:match
+   #:algebraic-data-type
+   #:algebraic-data-type-p
    #:get-constructors))
 
