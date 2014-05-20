@@ -3,6 +3,16 @@
 
 (in-package #:cl-algebraic-data-type)
 
+(defun duplicates (sequence &key (test 'eql))
+  (let ((table (make-hash-table :test test))
+        (dupes nil))
+    (map nil (lambda (item)
+               (if (gethash item table)
+                   (pushnew item dupes :test test)
+                   (setf (gethash item table) t)))
+         sequence)
+    (nreverse dupes)))
+
 ;; TODO: Optimize ETYPECASE to be a jump table.
 (defmacro match (adt obj &body clauses)
   "Perform pattern matching on OBJ with (adt-type) ADT.
@@ -29,6 +39,13 @@ deep).
                          (ensure-car (car clause)))
                        clauses))
         (once (gensym "OBJ-")))
+    
+    ;; Check for duplicate matches.
+    (let ((dupes (duplicates types)))
+      (when dupes
+        (warn "Duplicate matching clauses exist. Duplicate pattern ~
+               constructors:~{ ~S~}"
+              dupes)))
     
     ;; Check for match exhaustiveness.
     (unless (some #'wild? types)
