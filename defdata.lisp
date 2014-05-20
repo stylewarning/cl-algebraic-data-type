@@ -1,5 +1,5 @@
 ;;;; cl-algebraic-data-type.lisp
-;;;; Copyright (c) 2012-2013 Robert Smith
+;;;; Copyright (c) 2012-2014 Robert Smith
 
 (in-package #:cl-algebraic-data-type)
 
