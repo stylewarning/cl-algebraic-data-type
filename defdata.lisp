@@ -52,7 +52,10 @@ functions."
                        t))
         (object (gensym "OBJECT-"))
         (stream (gensym "STREAM-"))
-        (depth (gensym "DEPTH-")))
+        (depth (gensym "DEPTH-"))
+        (documentation
+          (when (stringp (car constructors))
+            (pop constructors))))
 
     ;; Add constructors and their arity to the database.
     (flet ((constructor-and-arity (ctor)
@@ -83,7 +86,8 @@ functions."
          (defstruct (,adt-name (:constructor nil)
                                (:copier nil)
                                (:predicate nil)
-                               (:include algebraic-data-type)))
+                               (:include algebraic-data-type))
+           ,@(unsplice documentation))
 
          ;; Define each of the field constructors.
          ,@(loop :for ctor :in (unwrap-singletons constructors)

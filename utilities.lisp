@@ -77,3 +77,6 @@
     `(progn
        (defvar ,varname ,value)
        (define-symbol-macro ,name (load-time-value ,varname t)))))
+
+(defun unsplice (x)
+  (and x (list x)))
