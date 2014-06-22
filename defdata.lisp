@@ -45,7 +45,7 @@ functions."
       name as a symbol, or a list of two elements with the ADT name ~
       and :MUTABLE respectively. Given ~S."
    adt-name)
-  
+
   (let ((adt-name (ensure-car adt-name))
         (mutable? (and (listp adt-name)
                        (getf (cdr adt-name) :mutable)
@@ -53,14 +53,14 @@ functions."
         (object (gensym "OBJECT-"))
         (stream (gensym "STREAM-"))
         (depth (gensym "DEPTH-")))
-    
+
     ;; Add constructors and their arity to the database.
     (flet ((constructor-and-arity (ctor)
              (if (listp ctor)
                  (list (car ctor) (length (rest ctor)))
                  (list ctor 0))))
       (set-constructors adt-name (mapcar #'constructor-and-arity constructors)))
-    
+
     (flet ((make-printer (name &optional (nfields 0))
              "Make a printer function for the structs."
              `(lambda (,object ,stream ,depth)
@@ -81,8 +81,10 @@ functions."
       `(progn
          ;; Define the data type.
          (defstruct (,adt-name (:constructor nil)
+                               (:copier nil)
+                               (:predicate nil)
                                (:include algebraic-data-type)))
-         
+
          ;; Define each of the field constructors.
          ,@(loop :for ctor :in (unwrap-singletons constructors)
                  :collect
@@ -93,11 +95,13 @@ functions."
                                   (,ctor
                                    (:include ,adt-name)
                                    (:constructor ,(internal ctor))
-                                   (:print-function ,(make-printer ctor))))
+                                   (:print-function ,(make-printer ctor))
+                                   (:copier nil)
+                                   (:predicate nil)))
                               #+sbcl (declaim (sb-ext:freeze-type ,ctor))
                               (define-constant ,ctor (,(internal ctor)))
                               (fmakunbound ',(internal ctor))))
-                   
+
                    ;; N-ary constructors
                    (list (let* ((ctor-name (first ctor))
                                 (field-types (rest ctor))
@@ -107,7 +111,9 @@ functions."
                                           (:include ,adt-name)
                                           (:constructor ,ctor-name (,@field-names))
                                           (:conc-name ,ctor-name)
-                                          (:print-function 
+                                          (:copier nil)
+                                          (:predicate nil)
+                                          (:print-function
                                            ,(make-printer ctor-name
                                                           (length field-names))))
                                 ,@(mapcar #'(lambda (name type)
