@@ -33,26 +33,26 @@ deep).
           (adt)
           "MATCH requires a symbol for the first argument. Given ~S."
           adt)
-  
+
   (let ((ctors (mapcar #'car (get-constructors adt)))
         (types (mapcar (lambda (clause)
                          (ensure-car (car clause)))
                        clauses))
         (once (gensym "OBJ-")))
-    
+
     ;; Check for duplicate matches.
     (let ((dupes (duplicates types)))
       (when dupes
         (warn "Duplicate matching clauses exist. Duplicate pattern ~
                constructors:~{ ~S~}"
               dupes)))
-    
+
     ;; Check for match exhaustiveness.
     (unless (some #'wild? types)
       (let ((diff (set-difference ctors types)))
         (when diff
-          (warn "Non-exhaustive match. Missing cases:~{ ~S~}" diff))))
-    
+          (warn "Non-exhaustive match on ~A data type. Missing cases:~{ ~S~}" adt diff))))
+
     ;; Generate the matching code.
     `(let ((,once ,obj))
        (check-type ,once ,adt)
@@ -61,7 +61,7 @@ deep).
                  :collect (let ((type (ensure-car bindings)))
                             (if (wild? type)
                                 `(t ,@body)
-                                `(,type 
+                                `(,type
                                   (with-data ,(ensure-list bindings)
                                              ,once
                                     ,@body)))))))))
