@@ -14,6 +14,7 @@
     ((just x) x)
     (nothing else)))
 
+
 ;;; Either
 
 (defdata either
@@ -23,7 +24,7 @@
 
 ;;; Point
 
-(defdata (point :mutable)
+(defdata (point :mutable t)
   (rect float float))
 
 (defvar *origin* (rect 0.0 0.0))
