@@ -18,6 +18,10 @@
   ;; NIL, for example in CCL, but it's not always NIL.
   (values (subtypep type 'algebraic-data-type)))
 
+(defun algebraic-data-value-p (value)
+  "Is the value VALUE that of some algebraic data type?"
+  (typep value 'algebraic-data-type))
+
 (defun get-constructors (adt)
   "Get the constructors and their arity for the adt ADT. Two values will be returned:
 
