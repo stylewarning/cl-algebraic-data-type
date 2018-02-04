@@ -61,11 +61,11 @@
   (intern (format nil "%~A" s)))
 
 (defun unwrap-singletons (list)
-  (mapcar #'(lambda (x)
-              (if (and (listp x)
-                       (= 1 (length x)))
-                  (first x)
-                  x))
+  (mapcar (lambda (x)
+            (if (and (listp x)
+                     (= 1 (length x)))
+                (first x)
+                x))
           list))
 
 (defun gen-names (n)
@@ -77,10 +77,20 @@
           (symbol-package name)))
 
 (defmacro define-constant (name value)
-  (let ((varname (intern (format nil "*%~A*" name))))
-    `(progn
-       (defvar ,varname ,value)
-       (define-symbol-macro ,name (load-time-value ,varname t)))))
+  `(defconstant ,name (if (boundp ',name)
+                          ,name
+                          ,value)))
 
 (defun unsplice (x)
   (and x (list x)))
+
+(defun property-list-p (x &rest keys)
+  ;; ensure that KEYS exist
+  (and (listp x)
+       (evenp (length x))
+       (loop :for (key val) :on x :by #'cddr
+             ;; Property lists can actually have any symbols, but for
+             ;; our use, they'll be required to be keywords.
+             :always (keywordp key)
+             :do (setf keys (remove key keys)))
+       (null keys)))

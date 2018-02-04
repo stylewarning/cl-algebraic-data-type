@@ -51,7 +51,8 @@ deep).
     (unless (some #'wild? types)
       (let ((diff (set-difference ctors types)))
         (when diff
-          (warn "Non-exhaustive match on ~A data type. Missing cases:~{ ~S~}" adt diff))))
+          (warn "Non-exhaustive match on ~A data ~
+                 type. Missing cases:~{ ~S~}" adt diff))))
 
     ;; Generate the matching code.
     `(let ((,once ,obj))
