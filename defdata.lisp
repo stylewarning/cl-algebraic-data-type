@@ -123,13 +123,14 @@ functions."
                  (etypecase ctor
                    ;; Nullary constructor
                    (symbol `(progn
-                              (defstruct
-                                  (,ctor
-                                   (:include ,adt-name)
-                                   (:constructor ,(internal ctor))
-                                   (:copier nil)
-                                   (:predicate nil)
-                                   (:print-function ,(make-printer ctor))))
+                              (eval-when (:compile-toplevel :load-toplevel :execute)
+                                (defstruct
+                                    (,ctor
+                                     (:include ,adt-name)
+                                     (:constructor ,(internal ctor))
+                                     (:copier nil)
+                                     (:predicate nil)
+                                     (:print-function ,(make-printer ctor)))))
                               #+sbcl (declaim (sb-ext:freeze-type ,ctor))
                               (defmethod make-load-form ((,object ,ctor) &optional ,env)
                                 (make-load-form-saving-slots ,object
