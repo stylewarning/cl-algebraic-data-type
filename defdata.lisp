@@ -109,7 +109,7 @@ functions."
                 ,(when (plusp nfields)
                    `(write-char #\) ,stream)))))
       ;; Define everything.
-      `(progn
+      `(eval-when (:compile-toplevel :load-toplevel :execute)
          ;; Define the data type.
          (defstruct (,adt-name (:constructor nil)
                                (:copier nil)
