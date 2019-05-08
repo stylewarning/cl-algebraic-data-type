@@ -50,6 +50,11 @@ functions."
       name as a symbol, or a list of two elements with the ADT name ~
       and :MUTABLE respectively. Given ~S."
    adt-name)
+  (let ((valid-options (list ':mutable ':include)))
+    (when (and (listp adt-name) (= (mod (length (rest adt-name)) 2) 0))
+      (loop for opt in (rest adt-name) by #'cddr do
+	   (when (not (member opt valid-options))
+	     (error "Option ~A is not valid, valid options are member of ~A." opt valid-options)))))
 
   (let ((adt-name (ensure-car adt-name))
         (mutable? (and (listp adt-name)
