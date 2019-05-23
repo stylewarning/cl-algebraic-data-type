@@ -1,9 +1,10 @@
 ;;;; utilities.lisp
-;;;; Copyright (c) 2013-2014 Robert Smith
+;;;;
+;;;; Copyright (c) 2013-2019 Robert Smith
 
 (in-package #:cl-algebraic-data-type)
 
-(defvar *constructors* (make-hash-table :test 'eq))
+(global-vars:define-global-var *constructors* (make-hash-table :test 'eq))
 
 (defstruct (algebraic-data-type (:constructor nil)
                                 (:copier      nil)
@@ -45,7 +46,7 @@
 
 (defun wild? (s)
   (and (symbolp s)
-       (string= "_" (symbol-name s))))
+       (string= "_" s)))
 
 (defun ensure-list (x)
   (if (listp x)
@@ -58,7 +59,7 @@
       x))
 
 (defun internal (s)
-  (intern (format nil "%~A" s)))
+  (alexandria:format-symbol ':cl-algebraic-data-type "%~A" s))
 
 (defun unwrap-singletons (list)
   (mapcar (lambda (x)
@@ -70,11 +71,10 @@
 
 (defun gen-names (n)
   (loop :for i :below n
-        :collect (make-symbol (format nil "%~D" i))))
+        :collect (internal i)))
 
 (defun field (name n)
-  (intern (format nil "~A%~D" name n)
-          (symbol-package name)))
+  (alexandria:format-symbol (symbol-package name) "~A%~D" name n))
 
 (defmacro define-constant (name value)
   `(defconstant ,name (if (boundp ',name)
