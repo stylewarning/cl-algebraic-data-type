@@ -77,9 +77,7 @@
   (alexandria:format-symbol (symbol-package name) "~A%~D" name n))
 
 (defmacro define-constant (name value)
-  `(defconstant ,name (if (boundp ',name)
-                          ,name
-                          ,value)))
+  `(alexandria:define-constant ,name ,value :test 'equalp))
 
 (defun unsplice (x)
   (and x (list x)))
