@@ -114,65 +114,73 @@ functions."
                 ,(when (plusp nfields)
                    `(write-char #\) ,stream)))))
       ;; Define everything.
-      `(eval-when (:compile-toplevel :load-toplevel :execute)
-         ;; Define the data type.
-         (defstruct (,adt-name (:constructor nil)
-                               (:copier nil)
-                               (:predicate nil)
-                               (:include ,include))
-           ,@(unsplice documentation))
+      (let ((component-documentation
+             ;; Force the adt-name symbol to print with a package
+             ;; prefix
+             (let ((*package* (find-package :keyword)))
+               (format nil "A component of ADT ~S" adt-name))))
+        `(eval-when (:compile-toplevel :load-toplevel :execute)
+           ;; Define the data type.
+           (defstruct (,adt-name (:constructor nil)
+                                 (:copier nil)
+                                 (:predicate nil)
+                                 (:include ,include))
+             ,@(unsplice documentation))
 
-         ;; Define each of the field constructors.
-         ,@(loop :for ctor :in (unwrap-singletons constructors)
-                 :collect
-                 (etypecase ctor
-                   ;; Nullary constructor
-                   (symbol `(progn
-                              (eval-when (:compile-toplevel :load-toplevel :execute)
-                                (defstruct
-                                    (,ctor
-                                     (:include ,adt-name)
-                                     (:constructor ,(internal ctor))
-                                     (:copier nil)
-                                     (:predicate nil)
-                                     (:print-function ,(make-printer ctor)))))
-                              #+sbcl (declaim (sb-ext:freeze-type ,ctor))
-                              (defmethod make-load-form ((,object ,ctor) &optional ,env)
-                                (make-load-form-saving-slots ,object
-                                                             :slot-names nil
-                                                             :environment ,env))
-                              (define-constant ,ctor (,(internal ctor)))
-                              (fmakunbound ',(internal ctor))))
+           ;; Define each of the field constructors.
+           ,@(loop :for ctor :in (unwrap-singletons constructors)
+                   :collect
+                   (etypecase ctor
+                     ;; Nullary constructor
+                     (symbol `(progn
+                                (eval-when (:compile-toplevel :load-toplevel :execute)
+                                  (defstruct
+                                      (,ctor
+                                       (:include ,adt-name)
+                                       (:constructor ,(internal ctor))
+                                       (:copier nil)
+                                       (:predicate nil)
+                                       (:print-function ,(make-printer ctor)))
+                                    ,component-documentation))
+                                #+sbcl (declaim (sb-ext:freeze-type ,ctor))
+                                (defmethod make-load-form ((,object ,ctor) &optional ,env)
+                                  (make-load-form-saving-slots ,object
+                                                               :slot-names nil
+                                                               :environment ,env))
+                                (define-constant ,ctor (,(internal ctor))
+                                  ,component-documentation)
+                                (fmakunbound ',(internal ctor))))
 
-                   ;; N-ary constructors
-                   (list (let* ((ctor-name (first ctor))
-                                (field-types (rest ctor))
-                                (field-names (gen-names (length field-types))))
-                           `(progn
-                              (defstruct (,ctor-name
-                                          (:include ,adt-name)
-                                          (:constructor ,ctor-name (,@field-names))
-                                          (:conc-name ,ctor-name)
-                                          (:copier nil)
-                                          (:predicate nil)
-                                          (:print-function
-                                           ,(make-printer ctor-name
-                                                          (length field-names))))
-                                ,@(mapcar (lambda (name type)
-                                            `(,name (error "Unspecified field.")
-                                                    :type ,type
-                                                    ,@(if mutable?
-                                                          nil
-                                                          '(:read-only t))))
-                                   field-names
-                                   field-types))
-                              #+sbcl (declaim (sb-ext:freeze-type ,ctor-name))
-                              (defmethod make-load-form ((,object ,ctor-name) &optional ,env)
-                                (make-load-form-saving-slots ,object
-                                                             :slot-names ',field-names
-                                                             :environment ,env)))))))
-         ;; Return the type name
-         ',adt-name))))
+                     ;; N-ary constructors
+                     (list (let* ((ctor-name (first ctor))
+                                  (field-types (rest ctor))
+                                  (field-names (gen-names (length field-types))))
+                             `(progn
+                                (defstruct (,ctor-name
+                                            (:include ,adt-name)
+                                            (:constructor ,ctor-name (,@field-names))
+                                            (:conc-name ,ctor-name)
+                                            (:copier nil)
+                                            (:predicate nil)
+                                            (:print-function
+                                             ,(make-printer ctor-name
+                                                            (length field-names))))
+                                  ,component-documentation
+                                  ,@(mapcar (lambda (name type)
+                                              `(,name (error "Unspecified field.")
+                                                      :type ,type
+                                                      ,@(if mutable?
+                                                            nil
+                                                            '(:read-only t))))
+                                     field-names
+                                     field-types))
+                                #+sbcl (declaim (sb-ext:freeze-type ,ctor-name))
+                                (defmethod make-load-form ((,object ,ctor-name) &optional ,env)
+                                  (make-load-form-saving-slots ,object
+                                                               :slot-names ',field-names
+                                                               :environment ,env)))))))
+           ;; Return the type name
+           ',adt-name)))))
 
 (defmacro set-data (obj (name &rest new-values))
   "Mutate the fields of the ADT value OBJ whose constructor is NAME

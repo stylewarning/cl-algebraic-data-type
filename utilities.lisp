@@ -76,8 +76,9 @@
 (defun field (name n)
   (alexandria:format-symbol (symbol-package name) "~A%~D" name n))
 
-(defmacro define-constant (name value)
-  `(alexandria:define-constant ,name ,value :test 'equalp))
+(defmacro define-constant (name value documentation)
+  `(alexandria:define-constant ,name ,value
+     :test 'equalp :documentation ,documentation))
 
 (defun unsplice (x)
   (and x (list x)))
