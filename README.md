@@ -1,6 +1,11 @@
 # CL-ALGEBRAIC-DATA-TYPE
 *by Robert Smith*
 
+*This library provides an approximation of algebraic data types as in
+other functional languages. If you would like a complete solution to
+algebraic data types with static types in Common Lisp, then consider
+[Coalton](https://github.com/coalton-lang/coalton) instead.*
+
 CL-ALGEBRAIC-DATA-TYPE, or ADT, is a library for defining algebraic
 data types in a similar spirit to Haskell or Standard ML, as well as
 for operating on them.
